@@ -616,8 +616,39 @@ main (void)
 
 /*******************************************************************practical 7*******************************************************************************/
 
+// T test
+
+#include <apop.h>
+int main()
+{
+	apop_db_open("data-census.db");
+	gsl_vector *n = apop_query_to_vector("select in_per_capita from income where state in(select state from geography where state ='up')");
+	gsl_vector *s = apop_query_to_vector("select in_per_capita from income where state in(select state from geography where state='rajashtan')");
+	apop_data *t = apop_t_test(n,s);
+	apop_data_show(t); //show the whole output set...
+	printf ("\n confidence: %g\n", apop_data_get(t,.rowname="conf.*2 tail")); //...or just one value.
+
+}
 
 
+// F test
+
+#include<apop.h>
+apop_data *query_data(){
+	apop_db_open("company.db");
+	return apop_query_to_data(" select emp.id as emp_id, salary as emp_sal,num as dept_num from emp, dept where emp.id=dept.id ");
+}
+
+int main()
+{
+double line[] = {0, 0, 0, 1};
+apop_data *constr = apop_line_to_data(line, 1, 1, 3);
+apop_data *d = query_data();
+apop_model *est = apop_estimate(d, apop_ols);
+apop_model_show(est);
+apop_data_show(apop_f_test(est, constr));
+
+ }
 
 
 
